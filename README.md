@@ -1,4 +1,4 @@
-# maiven bot
+# maiven-bot
 
 This little project is designed specifically for [Telegram](https://core.telegram.org/bots/api) bots.
 
