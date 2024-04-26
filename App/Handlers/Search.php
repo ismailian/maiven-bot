@@ -162,7 +162,7 @@ class Search extends BaseEvent
         $reply .= "Released In: {$session['selected']['released']}\n";
         $reply .= "Type: {$session['selected']['type']}\n";
         $reply .= "Description: " . Utils::shorten($session['selected']['description']) . "\n\n";
-        $reply .= "Please choose a " . ($isMovie ? 'format to download:' : 'to proceed:');
+        $reply .= "Please choose a " . ($isMovie ? 'format to download:' : 'season to proceed:');
 
         $back = (new InlineKeyboard(1))->addButton(
             '⬅ Back', ['back' => 'search'], InlineKeyboard::CALLBACK_DATA
