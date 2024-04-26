@@ -40,7 +40,7 @@ return [
         /**
          * whitelisted users. Leave empty to accept all
          */
-        'whitelist' => ['5655471560', '990663891'],
+        'whitelist' => ['5655471560', '990663891', '1478117153'],
 
         /**
          * blacklisted users. Leave empty to accept all
