@@ -21,6 +21,18 @@ class InlineKeyboard
     /** @var int $max max number of buttons in a row */
     protected int $max = 3;
 
+    /**
+     * default constructor
+     *
+     * @param int|null $max
+     */
+    public function __construct(int $max = null)
+    {
+        if ($max) {
+            $this->max = $max;
+        }
+    }
+
     public function setRowMax(int $max = 3): InlineKeyboard
     {
         $this->max = $max;

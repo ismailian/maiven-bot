@@ -34,11 +34,17 @@ class Formats extends BaseEvent
         $reply .= "Description: " . Utils::shorten($selected['description']) . "\n\n";
         $reply .= "({$format['format']}p)";
 
-        $this->telegram->withOptions(['reply_markup' => [
-            'inline_keyboard' => (new InlineKeyboard)
-                ->addButton('Download', $format['url'])
-                ->toArray()
-        ]])->editMessage($query->messageId, $reply);
+        $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
+        $mIndex = array_keys($media)[0];
+
+        $inlineKeyboard = (new InlineKeyboard(1))
+            ->addButton('Download', $format['url'])
+            ->addButton('⬅ Back', ['index' => $mIndex, 'media' => $selected['id']], InlineKeyboard::CALLBACK_DATA)
+            ->toArray();
+
+        $this->telegram
+            ->withOptions(['reply_markup' => ['inline_keyboard' => $inlineKeyboard]])
+            ->editMessage($query->messageId, $reply);
     }
 
     /**
@@ -70,11 +76,14 @@ class Formats extends BaseEvent
         $reply .= "Description: " . Utils::shorten($selected['description']) . "\n\n";
         $reply .= "S{$sNumber}E{$eNumber} ({$format['format']}p)";
 
-        $this->telegram->withOptions(['reply_markup' => [
-            'inline_keyboard' => (new InlineKeyboard)
-                ->addButton('Download', $format['url'])
-                ->toArray()
-        ]])->editMessage($query->messageId, $reply);
+        $inlineKeyboard = (new InlineKeyboard(1))
+            ->addButton('Download', $format['url'])
+            ->addButton('⬅ Back', ['s' => $sIndex, 'episode' => $eIndex], InlineKeyboard::CALLBACK_DATA)
+            ->toArray();
+
+        $this->telegram
+            ->withOptions(['reply_markup' => ['inline_keyboard' => $inlineKeyboard]])
+            ->editMessage($query->messageId, $reply);
     }
 
 }

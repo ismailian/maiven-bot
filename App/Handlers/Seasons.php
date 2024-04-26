@@ -56,9 +56,17 @@ class Seasons extends BaseEvent
         $reply .= "Description: " . Utils::shorten($session['selected']['description']) . "\n\n";
         $reply .= "Please choose an episode to proceed:";
 
-        $this->telegram->withOptions(['reply_markup' => [
-            'inline_keyboard' => $inlineKeyboard->toArray()
-        ]])->editMessage($query->messageId, $reply);
+        $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
+        $mIndex = array_keys($media)[0];
+
+        $back = (new InlineKeyboard(1))->addButton(
+            '⬅ Back', ['index' => $mIndex, 'media' => $selected['id']], InlineKeyboard::CALLBACK_DATA
+        )->toArray();
+        $this->telegram
+            ->withOptions(['reply_markup' => [
+            'inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]
+        ]])
+            ->editMessage($query->messageId, $reply);
     }
 
 }

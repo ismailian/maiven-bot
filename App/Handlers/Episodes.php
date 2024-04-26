@@ -46,9 +46,12 @@ class Episodes extends BaseEvent
         $reply .= "Description: " . Utils::shorten($selected['description']) . "\n\n";
         $reply .= "Please choose an format to download:";
 
-        $this->telegram->withOptions(['reply_markup' => [
-            'inline_keyboard' => $inlineKeyboard->toArray()
-        ]])->editMessage($query->messageId, $reply);
+        $back = (new InlineKeyboard(1))->addButton(
+            '⬅ Back', ['season' => $sIndex], InlineKeyboard::CALLBACK_DATA
+        )->toArray();
+        $this->telegram
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]]])
+            ->editMessage($query->messageId, $reply);
     }
 
 }

@@ -4,8 +4,8 @@ namespace TeleBot\App\Handlers;
 
 use Exception;
 use TeleBot\System\BaseEvent;
-use TeleBot\System\Events\Text;
 use TeleBot\App\Helpers\Utils;
+use TeleBot\System\Events\Text;
 use TeleBot\App\Services\Show365;
 use TeleBot\System\SessionManager;
 use TeleBot\System\Filters\Awaits;
@@ -84,6 +84,44 @@ class Search extends BaseEvent
     }
 
     /**
+     * handle back to search callback query
+     *
+     * @param IncomingCallbackQuery $query
+     * @return void
+     * @throws Exception
+     */
+    #[CallbackQuery('back', 'search')]
+    public function onBack(IncomingCallbackQuery $query): void
+    {
+        $index = 0;
+        $cursor = $index + 1;
+        $results = SessionManager::get('search');
+        $select = (new InlineKeyboard)->setRowMax(1)->addButton(
+            '✔️ Confirm',
+            ['index' => $index, 'media' => $results[$index]['id']],
+            InlineKeyboard::CALLBACK_DATA
+        )->toArray();
+        $navigation = (new InlineKeyboard)
+            ->setRowMax(3)
+            ->addButton('⬅', ['index' => $index, 'nav' => 'prev'], InlineKeyboard::CALLBACK_DATA)
+            ->addButton("$cursor/10", "none", InlineKeyboard::CALLBACK_DATA)
+            ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
+            ->toArray();
+
+        $reply = "Title: {$results[$index]['title']}\n";
+        $reply .= "Rating: " . Utils::r2s($results[$index]['rating']) . "\n";
+        $reply .= "Released In: {$results[$index]['released']}\n";
+        $reply .= "Type: {$results[$index]['type']}\n";
+        $reply .= "Description: " . Utils::shorten($results[$index]['description']) . "\n";
+
+        $this->telegram
+            ->withOptions(['reply_markup' => [
+            'inline_keyboard' => [...$select, ...$navigation]
+        ]])
+            ->editMessage($query->messageId, $reply);
+    }
+
+    /**
      * handle media callback query
      *
      * @param IncomingCallbackQuery $query
@@ -111,19 +149,11 @@ class Search extends BaseEvent
         $inlineKeyboard = new InlineKeyboard();
         if ($isMovie) {
             foreach ($result as $i => $format) {
-                $inlineKeyboard->addButton(
-                    "{$format->format}p",
-                    ['movie:format' => $i],
-                    InlineKeyboard::CALLBACK_DATA
-                );
+                $inlineKeyboard->addButton("{$format->format}p", ['movie:format' => $i], InlineKeyboard::CALLBACK_DATA);
             }
         } else {
             foreach ($result as $i => $season) {
-                $inlineKeyboard->addButton(
-                    "S" . Utils::padLeft($season->number),
-                    ['season' => $i],
-                    InlineKeyboard::CALLBACK_DATA
-                );
+                $inlineKeyboard->addButton("S" . Utils::padLeft($season->number), ['season' => $i], InlineKeyboard::CALLBACK_DATA);
             }
         }
 
@@ -134,9 +164,12 @@ class Search extends BaseEvent
         $reply .= "Description: " . Utils::shorten($session['selected']['description']) . "\n\n";
         $reply .= "Please choose a " . ($isMovie ? 'format to download:' : 'to proceed:');
 
-        $this->telegram->withOptions(['reply_markup' => [
-            'inline_keyboard' => $inlineKeyboard->toArray()]
-        ])->editMessage($query->messageId, $reply);
+        $back = (new InlineKeyboard(1))->addButton(
+            '⬅ Back', ['back' => 'search'], InlineKeyboard::CALLBACK_DATA
+        )->toArray();
+        $this->telegram
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]]])
+            ->editMessage($query->messageId, $reply);
     }
 
 }
