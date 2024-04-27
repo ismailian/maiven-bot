@@ -398,12 +398,12 @@ class BotClient
     {
         $data = $this->post('editMedia', [
             'message_id' => $messageId,
-            'media' => [
+            'media' => json_encode([
                 'type' => $type,
                 'caption' => $caption ?? '',
                 'parse_mode' => $this->mode,
                 'media' => 'attach://media_file',
-            ],
+            ]),
             'media_file' => $asUrl ? $imagePath : Utils::tryFopen($imagePath, 'r'),
         ]);
 
