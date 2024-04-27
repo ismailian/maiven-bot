@@ -46,6 +46,7 @@ class Show365
                     'released' => $result['year'],
                     'rating' => $round(floatval($result['rate'])),
                     'type' => $result['isMovie'] ? 'movie' : 'series',
+                    'cover' => $result['photoUrl'] ?? null,
                 ];
             }, $response['data']), 0, $limit);
         } catch (\Exception $ex) {}

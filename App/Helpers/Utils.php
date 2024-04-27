@@ -45,4 +45,39 @@ class Utils
         return mb_substr($value, 0, 256) . '...';
     }
 
+    /**
+     * get compiled caption
+     *
+     * @param array $details
+     * @return string
+     */
+    public static function getCaption(array $details): string
+    {
+        $reply = "Title: {$details['title']}\n";
+        $reply .= "Type: {$details['type']}\n";
+        $reply .= "Released In: {$details['released']}\n";
+        $reply .= "Rating: " . self::r2s($details['rating']) . "\n";
+        // $reply .= "Description: " . self::shorten($details['description']) . "\n";
+
+        return $reply;
+    }
+
+    /**
+     * download media cover
+     *
+     * @param string $userId
+     * @param string $coverUrl
+     * @return string
+     */
+    public static function getCover(string $userId, string $coverUrl): string
+    {
+        $coverPath = "tmp/cover_$userId.jpg";
+        $buffer = file_put_contents($coverPath, file_get_contents($coverUrl));
+        if (!$buffer) {
+            $coverPath = 'tmp/default.png';
+        }
+
+        return $coverPath;
+    }
+
 }
