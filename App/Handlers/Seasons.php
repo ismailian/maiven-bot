@@ -49,24 +49,18 @@ class Seasons extends BaseEvent
             );
         }
 
-        $reply = "Title: {$session['selected']['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($session['selected']['rating']) . "\n";
-        $reply .= "Released In: {$session['selected']['released']}\n";
-        $reply .= "Type: {$session['selected']['type']}\n";
-        $reply .= "Description: " . Utils::shorten($session['selected']['description']) . "\n\n";
-        $reply .= "Please choose an episode to proceed:";
-
         $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
-
         $back = (new InlineKeyboard(1))->addButton(
             '⬅ Back', ['index' => $mIndex, 'media' => $selected['id']], InlineKeyboard::CALLBACK_DATA
         )->toArray();
+
+        $caption = Utils::getCaption($selected);
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $selected['cover']);
+
         $this->telegram
-            ->withOptions(['reply_markup' => [
-            'inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]
-        ]])
-            ->editMessage($query->messageId, $reply);
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]]])
+            ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 
 }

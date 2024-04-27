@@ -8,6 +8,7 @@ use TeleBot\App\Helpers\Utils;
 use TeleBot\System\SessionManager;
 use TeleBot\System\Types\InlineKeyboard;
 use TeleBot\System\Events\CallbackQuery;
+use GuzzleHttp\Exception\GuzzleException;
 use TeleBot\System\Types\IncomingCallbackQuery;
 
 class Formats extends BaseEvent
@@ -18,7 +19,7 @@ class Formats extends BaseEvent
      *
      * @param IncomingCallbackQuery $query
      * @return void
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     #[CallbackQuery('movie:format')]
     public function onMovieFormat(IncomingCallbackQuery $query): void
@@ -27,12 +28,8 @@ class Formats extends BaseEvent
         $selected = SessionManager::get('selected');
         $format = $selected['formats'][$fIndex];
 
-        $reply = "Title: {$selected['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($selected['rating']) . "\n";
-        $reply .= "Released In: {$selected['released']}\n";
-        $reply .= "Type: {$selected['type']}\n";
-        $reply .= "Description: " . Utils::shorten($selected['description']) . "\n\n";
-        $reply .= "({$format['format']}p)";
+        $caption = Utils::getCaption($selected);
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $selected['cover']);
 
         $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
@@ -44,7 +41,7 @@ class Formats extends BaseEvent
 
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => $inlineKeyboard]])
-            ->editMessage($query->messageId, $reply);
+            ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 
     /**
@@ -52,7 +49,7 @@ class Formats extends BaseEvent
      *
      * @param IncomingCallbackQuery $query
      * @return void
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     #[CallbackQuery('series:format')]
     public function onSeriesFormat(IncomingCallbackQuery $query): void
@@ -66,15 +63,12 @@ class Formats extends BaseEvent
         $episode = $season['episodes'][$eIndex];
         $format = $episode['formats'][$fIndex];
 
-        $sNumber = str_pad($season['number'], 2, 0, STR_PAD_LEFT);
-        $eNumber = str_pad($episode['number'], 2, 0, STR_PAD_LEFT);
+        $sNumber = Utils::padLeft($season['number']);
+        $eNumber = Utils::padLeft($episode['number']);
 
-        $reply = "Title: {$selected['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($selected['rating']) . "\n";
-        $reply .= "Released In: {$selected['released']}\n";
-        $reply .= "Type: {$selected['type']}\n";
-        $reply .= "Description: " . Utils::shorten($selected['description']) . "\n\n";
-        $reply .= "S{$sNumber}E{$eNumber} ({$format['format']}p)";
+        $caption = Utils::getCaption($selected);
+        $caption .= "\nS{$sNumber}E{$eNumber}";
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $selected['cover']);
 
         $inlineKeyboard = (new InlineKeyboard(1))
             ->addButton('Download', $format['url'])
@@ -83,7 +77,7 @@ class Formats extends BaseEvent
 
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => $inlineKeyboard]])
-            ->editMessage($query->messageId, $reply);
+            ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 
 }

@@ -3,6 +3,7 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
 use TeleBot\System\SessionManager;
@@ -18,7 +19,7 @@ class Episodes extends BaseEvent
      *
      * @param IncomingCallbackQuery $query
      * @return void
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     #[CallbackQuery('episode')]
     public function onEpisode(IncomingCallbackQuery $query): void
@@ -39,19 +40,15 @@ class Episodes extends BaseEvent
             );
         }
 
-        $reply = "Title: {$selected['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($selected['rating']) . "\n";;
-        $reply .= "Released In: {$selected['released']}\n";
-        $reply .= "Type: {$selected['type']}\n";
-        $reply .= "Description: " . Utils::shorten($selected['description']) . "\n\n";
-        $reply .= "Please choose an format to download:";
-
+        $caption = Utils::getCaption($selected);
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $selected['cover']);
         $back = (new InlineKeyboard(1))->addButton(
             '⬅ Back', ['season' => $sIndex], InlineKeyboard::CALLBACK_DATA
         )->toArray();
+
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]]])
-            ->editMessage($query->messageId, $reply);
+            ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 
 }

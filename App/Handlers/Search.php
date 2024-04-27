@@ -19,6 +19,19 @@ class Search extends BaseEvent
 {
 
     /**
+     * handle search command
+     *
+     * @return void
+     * @throws Exception|GuzzleException
+     */
+    #[Command('search')]
+    public function onSearch(): void
+    {
+        SessionManager::start()->set(['await' => 'search']);
+        $this->telegram->sendMessage('Please type in the search keyword:');
+    }
+
+    /**
      * handle search query
      *
      * @return void
@@ -59,28 +72,12 @@ class Search extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $reply = "Title: {$results[$index]->title}\n";
-        $reply .= "Rating: " . Utils::r2s($results[$index]->rating) . "\n";
-        $reply .= "Released In: {$results[$index]->released}\n";
-        $reply .= "Type: {$results[$index]->type}\n";
-        $reply .= "Description: " . Utils::shorten($results[$index]->description) . "\n";
+        $coverPath = Utils::getCover($this->event['message']['from']['id'], $results[$index]->cover);
 
+        $this->telegram->deleteLastMessage();
         $this->telegram->withOptions(['reply_markup' => [
             'inline_keyboard' => [...$select, ...$navigation]
-        ]])->editMessage($this->telegram->getLastMessageId(), $reply);
-    }
-
-    /**
-     * handle search command
-     *
-     * @return void
-     * @throws Exception
-     */
-    #[Command('search')]
-    public function onSearch(): void
-    {
-        SessionManager::start()->set(['await' => 'search']);
-        $this->telegram->sendMessage('Please type in the search keyword:');
+        ]])->sendPhoto($coverPath, Utils::getCaption((array)$results[$index]));
     }
 
     /**
@@ -88,7 +85,7 @@ class Search extends BaseEvent
      *
      * @param IncomingCallbackQuery $query
      * @return void
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     #[CallbackQuery('back', 'search')]
     public function onBack(IncomingCallbackQuery $query): void
@@ -108,17 +105,12 @@ class Search extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $reply = "Title: {$results[$index]['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($results[$index]['rating']) . "\n";
-        $reply .= "Released In: {$results[$index]['released']}\n";
-        $reply .= "Type: {$results[$index]['type']}\n";
-        $reply .= "Description: " . Utils::shorten($results[$index]['description']) . "\n";
+        $caption = Utils::getCaption($results[$index]);
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $results[$index]['cover']);
 
         $this->telegram
-            ->withOptions(['reply_markup' => [
-            'inline_keyboard' => [...$select, ...$navigation]
-        ]])
-            ->editMessage($query->messageId, $reply);
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$select, ...$navigation]]])
+            ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 
     /**
@@ -127,7 +119,7 @@ class Search extends BaseEvent
      * @param IncomingCallbackQuery $query
      * @return void
      * @throws Exception
-     * @throws GuzzleException
+     * @throws Exception|GuzzleException
      */
     #[CallbackQuery('media')]
     public function onSelect(IncomingCallbackQuery $query): void
@@ -157,19 +149,15 @@ class Search extends BaseEvent
             }
         }
 
-        $reply = "Title: {$session['selected']['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($session['selected']['rating']) . "\n";
-        $reply .= "Released In: {$session['selected']['released']}\n";
-        $reply .= "Type: {$session['selected']['type']}\n";
-        $reply .= "Description: " . Utils::shorten($session['selected']['description']) . "\n\n";
-        $reply .= "Please choose a " . ($isMovie ? 'format to download:' : 'season to proceed:');
-
         $back = (new InlineKeyboard(1))->addButton(
             '⬅ Back', ['back' => 'search'], InlineKeyboard::CALLBACK_DATA
         )->toArray();
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $session['selected']['cover']);
+        $caption = Utils::getCaption($session['selected']);
+
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]]])
-            ->editMessage($query->messageId, $reply);
+            ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 
 }

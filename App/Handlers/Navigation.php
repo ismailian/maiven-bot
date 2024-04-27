@@ -3,6 +3,7 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
 use TeleBot\System\SessionManager;
@@ -18,7 +19,7 @@ class Navigation extends BaseEvent
      *
      * @param IncomingCallbackQuery $query
      * @return void
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     #[CallbackQuery('nav', 'next')]
     public function next(IncomingCallbackQuery $query): void
@@ -41,15 +42,10 @@ class Navigation extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $reply = "Title: {$results[$index]['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($results[$index]['rating']) . "\n";
-        $reply .= "Released In: {$results[$index]['released']}\n";
-        $reply .= "Type: {$results[$index]['type']}\n";
-        $reply .= "Description: " . Utils::shorten($results[$index]['description']) . "\n";
-
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $results[$index]['cover']);
         $this->telegram->withOptions(['reply_markup' => [
             'inline_keyboard' => [...$select, ...$navigation]
-        ]])->editMessage($query->messageId, $reply);
+        ]])->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
     }
 
     /**
@@ -57,7 +53,7 @@ class Navigation extends BaseEvent
      *
      * @param IncomingCallbackQuery $query
      * @return void
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     #[CallbackQuery('nav', 'prev')]
     public function previous(IncomingCallbackQuery $query): void
@@ -80,15 +76,10 @@ class Navigation extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $reply = "Title: {$results[$index]['title']}\n";
-        $reply .= "Rating: " . Utils::r2s($results[$index]['rating']) . "\n";
-        $reply .= "Released In: {$results[$index]['released']}\n";
-        $reply .= "Type: {$results[$index]['type']}\n";
-        $reply .= "Description: " . Utils::shorten($results[$index]['description']) . "\n";
-
+        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $results[$index]['cover']);
         $this->telegram->withOptions(['reply_markup' => [
             'inline_keyboard' => [...$select, ...$navigation]
-        ]])->editMessage($query->messageId, $reply);
+        ]])->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
     }
 
 }
