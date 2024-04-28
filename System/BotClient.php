@@ -388,13 +388,13 @@ class BotClient
      *
      * @param string $messageId
      * @param string $type
-     * @param string $imagePath
+     * @param string $mediaPath
      * @param string|null $caption
      * @param bool $asUrl
      * @return bool
      * @throws GuzzleException
      */
-    public function editMedia(string $messageId, string $type, string $imagePath, string $caption = null, bool $asUrl = false): bool
+    public function editMedia(string $messageId, string $type, string $mediaPath, string $caption = null, bool $asUrl = false): bool
     {
         $data = $this->post('editMedia', [
             'message_id' => $messageId,
@@ -404,7 +404,7 @@ class BotClient
                 'parse_mode' => $this->mode,
                 'media' => 'attach://media_file',
             ]),
-            'media_file' => $asUrl ? $imagePath : Utils::tryFopen($imagePath, 'r'),
+            'media_file' => $asUrl ? $mediaPath : Utils::tryFopen($mediaPath, 'r'),
         ]);
 
         return $data && $data['ok'] == true;
