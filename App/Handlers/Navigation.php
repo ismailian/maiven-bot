@@ -3,12 +3,12 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
 use TeleBot\System\SessionManager;
 use TeleBot\System\Events\CallbackQuery;
 use TeleBot\System\Types\InlineKeyboard;
+use GuzzleHttp\Exception\GuzzleException;
 use TeleBot\System\Types\IncomingCallbackQuery;
 
 class Navigation extends BaseEvent
@@ -42,10 +42,12 @@ class Navigation extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $results[$index]['cover']);
-        $this->telegram->withOptions(['reply_markup' => [
+        $coverPath = Utils::getCover($results[$index]['id'], $results[$index]['cover']);
+        $this->telegram
+            ->withOptions(['reply_markup' => [
             'inline_keyboard' => [...$select, ...$navigation]
-        ]])->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
+        ]])
+            ->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
     }
 
     /**
@@ -76,10 +78,10 @@ class Navigation extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $results[$index]['cover']);
-        $this->telegram->withOptions(['reply_markup' => [
-            'inline_keyboard' => [...$select, ...$navigation]
-        ]])->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
+        $coverPath = Utils::getCover($results[$index]['id'], $results[$index]['cover']);
+        $this->telegram
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$select, ...$navigation]]])
+            ->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
     }
 
 }

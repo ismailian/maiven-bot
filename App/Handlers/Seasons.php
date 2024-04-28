@@ -51,16 +51,53 @@ class Seasons extends BaseEvent
 
         $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
-        $back = (new InlineKeyboard(1))->addButton(
-            '⬅ Back', ['index' => $mIndex, 'media' => $selected['id']], InlineKeyboard::CALLBACK_DATA
-        )->toArray();
+        $navigation = (new InlineKeyboard(1))
+            ->addButton('⬇  Get All Episodes (txt)  ⬇', ['season:all' => $index], InlineKeyboard::CALLBACK_DATA)
+            ->addButton('⬅ Back', ['index' => $mIndex, 'media' => $selected['id']], InlineKeyboard::CALLBACK_DATA)
+            ->toArray();
 
         $caption = Utils::getCaption($selected);
-        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $selected['cover']);
+        $coverPath = Utils::getCover($selected['id'], $selected['cover']);
 
         $this->telegram
-            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]]])
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$navigation]]])
             ->editMedia($query->messageId, 'photo', $coverPath, $caption);
+    }
+
+    /**
+     * handle full season callback query
+     *
+     * @param IncomingCallbackQuery $query
+     * @return void
+     * @throws GuzzleException
+     */
+    #[CallbackQuery('season:all')]
+    public function onAllSeason(IncomingCallbackQuery $query): void
+    {
+        $index = (int)$query('season:all');
+        $session = SessionManager::get();
+
+        $userId = $this->event['callback_query']['from']['id'];
+        $selected = $session['selected'];
+        $uuid = $selected['seasons'][$index]['id'];
+        $number = Utils::padLeft($selected['seasons'][$index]['number']);
+
+        $episodes = $selected['seasons'][$index]['episodes'] ?? null;
+        if (empty($episodes) || !is_array($episodes))
+            $episodes = Show365::getEpisodes($uuid);
+
+        $files = Utils::getFiles($userId, $selected['title'], $number, $episodes);
+        $caption = Utils::getCaption($selected, $number);
+        $navigation = (new InlineKeyboard(1))
+            ->addButton('⬅ Back', ['season' => $index], InlineKeyboard::CALLBACK_DATA)
+            ->toArray();
+
+        $this->telegram
+            ->withOptions(['reply_markup' => ['inline_keyboard' => $navigation]])
+            ->editMedia($query->messageId, 'document', $files[0], $caption);
+
+        /** delete generated files */
+        array_map('unlink', $files);
     }
 
 }

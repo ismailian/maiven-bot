@@ -72,7 +72,7 @@ class Search extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $coverPath = Utils::getCover($this->event['message']['from']['id'], $results[$index]->cover);
+        $coverPath = Utils::getCover($results[$index]->id, $results[$index]->cover);
 
         $this->telegram->deleteLastMessage();
         $this->telegram->withOptions(['reply_markup' => [
@@ -106,7 +106,7 @@ class Search extends BaseEvent
             ->toArray();
 
         $caption = Utils::getCaption($results[$index]);
-        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $results[$index]['cover']);
+        $coverPath = Utils::getCover($results[$index]['id'], $results[$index]['cover']);
 
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => [...$select, ...$navigation]]])
@@ -152,7 +152,7 @@ class Search extends BaseEvent
         $back = (new InlineKeyboard(1))->addButton(
             '⬅ Back', ['back' => 'search'], InlineKeyboard::CALLBACK_DATA
         )->toArray();
-        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $session['selected']['cover']);
+        $coverPath = Utils::getCover($session['selected']['id'], $session['selected']['cover']);
         $caption = Utils::getCaption($session['selected']);
 
         $this->telegram

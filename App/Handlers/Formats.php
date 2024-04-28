@@ -29,7 +29,7 @@ class Formats extends BaseEvent
         $format = $selected['formats'][$fIndex];
 
         $caption = Utils::getCaption($selected);
-        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $selected['cover']);
+        $coverPath = Utils::getCover($selected['id'], $selected['cover']);
 
         $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
@@ -68,7 +68,7 @@ class Formats extends BaseEvent
 
         $caption = Utils::getCaption($selected);
         $caption .= "\nS{$sNumber}E{$eNumber}";
-        $coverPath = Utils::getCover($this->event['callback_query']['from']['id'], $selected['cover']);
+        $coverPath = Utils::getCover($selected['id'], $selected['cover']);
 
         $inlineKeyboard = (new InlineKeyboard(1))
             ->addButton('Download', $format['url'])
