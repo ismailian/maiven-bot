@@ -1,22 +1,26 @@
 import axios from "axios"
 import cron from "node-cron";
-import { config } from "dotenv";
+import {config} from "dotenv";
 
 config();
 
 /**
  * update server status alert
- * 
- * @param {Boolean} isUp 
+ *
+ * @param {Boolean} isUp
  */
 const updateStatus = async (isUp = true) => {
     try {
-        await axios.post(`https://api.telegram.org/bot${process.env.TG_BOT_TOKEN}/editMessage`, {
+        await axios.post(`https://api.telegram.org/bot${process.env.TG_BOT_TOKEN}/editMessageText`, {
             chat_id: process.env.ADMIN_CHAT_ID,
             message_id: process.env.STATUS_MSG_ID,
-            text: 'server is ' + (isUp ? 'up' : 'down')
+            text: (isUp ? '🟢' : '🔴') + ' server is ' + (isUp ? 'up' : 'down')
         });
-    } catch (error) { }
+    } catch ({response: {data}}) {
+        if (!data?.description.match(/(message is not modified)/)) {
+            console.log('[-]', 'error:', (data ? data?.description : 'Something went wrong!'));
+        }
+    }
 };
 
 /**
@@ -30,11 +34,7 @@ const checkUrl = async () => {
     return false;
 };
 
-/**
- * run task hour
- * 
- * @returns 
- */
+/** run task hour */
 cron.schedule(
     '0 */1 * * *',
     async () => await updateStatus(

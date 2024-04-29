@@ -1,7 +1,18 @@
 {
+  "name": "maivenbot-watchdog",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "monitors the health of the streaming server",
+  "main": "watch.js",
   "dependencies": {
     "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "node-cron": "^3.0.3"
-  }
+  },
+  "scripts": {
+    "start": "node watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
