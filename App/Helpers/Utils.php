@@ -125,7 +125,7 @@ class Utils
         }
 
         $files = [];
-        uksort($formats, fn($a, $b) => $a < $b);
+        uksort($formats, fn($a, $b) => ($a == $b) ? 0 : (($a < $b) ? 1 : -1));
         foreach ($formats as $format => $links) {
             $fileName = str_replace(' ', '_', strtolower($title));
             $filePath = "tmp/{$fileName}_S{$season}_{$userId}_{$format}p.txt";
