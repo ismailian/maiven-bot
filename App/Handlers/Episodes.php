@@ -30,6 +30,10 @@ class Episodes extends BaseEvent
         $selected = SessionManager::get('selected');
         $season = $selected['seasons'][$sIndex];
         $episode = $season['episodes'][$eIndex];
+        usort(
+            $episode['formats'],
+            fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1)
+        );
 
         $inlineKeyboard = new InlineKeyboard();
         foreach ($episode['formats'] as $i => $format) {

@@ -140,6 +140,10 @@ class Search extends BaseEvent
 
         $inlineKeyboard = new InlineKeyboard();
         if ($isMovie) {
+            usort(
+                $result,
+                fn($a, $b) => ($a->format == $b->format) ? 0 : ($a->format < $b->format ? 1 : -1)
+            );
             foreach ($result as $i => $format) {
                 $inlineKeyboard->addButton("{$format->format}p", ['movie:format' => $i], InlineKeyboard::CALLBACK_DATA);
             }
