@@ -26,6 +26,8 @@ class Formats extends BaseEvent
     {
         $fIndex = (int)$query('movie:format');
         $selected = SessionManager::get('selected');
+
+	usort($selected['formats'], fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1));
         $format = $selected['formats'][$fIndex];
 
         $caption = Utils::getCaption($selected);
@@ -61,6 +63,8 @@ class Formats extends BaseEvent
         $selected = SessionManager::get('selected');
         $season = $selected['seasons'][$sIndex];
         $episode = $season['episodes'][$eIndex];
+
+	usort($episode['formats'], fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1));
         $format = $episode['formats'][$fIndex];
 
         $sNumber = Utils::padLeft($season['number']);
