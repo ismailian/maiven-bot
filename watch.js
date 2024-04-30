@@ -1,8 +1,7 @@
 import axios from "axios"
-import cron from "node-cron";
 import {config} from "dotenv";
 
-config();
+config({ path: '/var/www/maiven-bot/.env' });
 
 /**
  * update server status alert
@@ -18,7 +17,7 @@ const updateStatus = async (isUp = true) => {
         });
     } catch ({response: {data}}) {
         if (!data?.description.match(/(message is not modified)/)) {
-            console.log('[-]', 'error:', (data ? data?.description : 'Something went wrong!'));
+            console.log('[-]', 'error:', (data || 'Something went wrong!'));
         }
     }
 };
@@ -35,9 +34,4 @@ const checkUrl = async () => {
 };
 
 /** run task hour */
-cron.schedule(
-    '0 */1 * * *',
-    async () => await updateStatus(
-        await checkUrl()
-    )
-);
+await updateStatus(await checkUrl());
