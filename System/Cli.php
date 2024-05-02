@@ -116,12 +116,17 @@ class Cli
                 $action = match ($file['status']) {
                     'added' => 'creating',
                     'modified' => 'updating',
-                    'deleted' => 'deleting'
+                    'removed' => 'deleting',
+                    'renamed' => 'renaming'
                 };
                 echo "[+] {$action}: {$file['filename']}" . PHP_EOL;
                 if ($action == 'deleting') {
                     @unlink($file['filename']);
                 } else {
+                    if (!file_exists(dirname($file['filename']))) {
+                        @mkdir(dirname($file['filename']));
+                    }
+
                     file_put_contents($file['filename'], file_get_contents($file['url']));
                 }
             }
@@ -129,7 +134,7 @@ class Cli
 
         /** save last update details */
         file_put_contents(self::$history, json_encode([
-            'date' => (new \DateTime())->format('Y-m-d\T00:00:00\Z'),
+            'date' => (new \DateTime())->format('Y-m-d\TH:i:s\Z'),
             'changes' => $updates,
         ], JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
     }
