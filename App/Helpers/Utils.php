@@ -75,7 +75,7 @@ class Utils
     public static function getCover(string $mediaId, string $coverUrl): string
     {
         $coverPath = "tmp/cover_$mediaId.jpg";
-        if (!file_exists($coverPath)) {
+        if (!file_exists($coverPath) || filesize($coverPath) == 0) {
             if (!file_put_contents($coverPath, file_get_contents($coverUrl))) {
                 $coverPath = 'tmp/default.png';
             }
