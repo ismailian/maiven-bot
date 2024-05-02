@@ -3,9 +3,9 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
+use TeleBot\System\Session;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
-use TeleBot\System\SessionManager;
 use TeleBot\System\Events\CallbackQuery;
 use TeleBot\System\Types\InlineKeyboard;
 use GuzzleHttp\Exception\GuzzleException;
@@ -25,7 +25,7 @@ class Navigation extends BaseEvent
     public function next(IncomingCallbackQuery $query): void
     {
         $index = $query('index');
-        $results = SessionManager::get('search');
+        $results = Session::get('search');
         if ($index >= (count($results) - 1)) return;
 
         $index++;
@@ -65,7 +65,7 @@ class Navigation extends BaseEvent
 
         $index--;
         $cursor = $index + 1;
-        $results = SessionManager::get('search');
+        $results = Session::get('search');
         $select = (new InlineKeyboard)->setRowMax(1)->addButton(
             '✔️ Confirm',
             ['index' => $index, 'media' => $results[$index]['id']],

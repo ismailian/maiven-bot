@@ -3,11 +3,11 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
+use TeleBot\System\Session;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
 use TeleBot\System\Events\Text;
 use TeleBot\App\Services\Show365;
-use TeleBot\System\SessionManager;
 use TeleBot\System\Filters\Awaits;
 use TeleBot\System\Events\Command;
 use TeleBot\System\Types\InlineKeyboard;
@@ -27,7 +27,7 @@ class Search extends BaseEvent
     #[Command('search')]
     public function onSearch(): void
     {
-        SessionManager::start()->set(['await' => 'search']);
+        Session::set('await', 'search');
         $this->telegram->sendMessage('Please type in the search keyword:');
     }
 
@@ -42,7 +42,7 @@ class Search extends BaseEvent
     #[Awaits('await', 'search')]
     public function onSearchQuery(): void
     {
-        $keyword = $this->event['message']['text'];
+        $keyword = $this->event->message->text;
         $this->telegram->sendMessage("Searching for: ($keyword)...");
 
         $results = Show365::search($keyword, 10);
@@ -51,12 +51,12 @@ class Search extends BaseEvent
             return;
         }
 
-        $session = SessionManager::get();
+        $session = Session::get();
         $session['search'] = $results;
         $session['selected'] = null;
 
         unset($session['await']);
-        SessionManager::set($session);
+        Session::set('*', $session);
 
         $index = 0;
         $cursor = $index + 1;
@@ -92,7 +92,7 @@ class Search extends BaseEvent
     {
         $index = 0;
         $cursor = $index + 1;
-        $results = SessionManager::get('search');
+        $results = Session::get('search');
         $select = (new InlineKeyboard)->setRowMax(1)->addButton(
             '✔️ Confirm',
             ['index' => $index, 'media' => $results[$index]['id']],
@@ -125,7 +125,7 @@ class Search extends BaseEvent
     public function onSelect(IncomingCallbackQuery $query): void
     {
         $uuid = $query('media');
-        $session = SessionManager::get();
+        $session = Session::get();
         $session['selected'] = $session['search'][$query('index')];
         $isMovie = $session['selected']['type'] == 'movie';
         $result = Show365::getShow($uuid, $isMovie);
@@ -136,7 +136,7 @@ class Search extends BaseEvent
 
         $key = $isMovie ? 'formats' : 'seasons';
         $session['selected'][$key] = $result;
-        SessionManager::set($session);
+        Session::set('*', $session);
 
         $inlineKeyboard = new InlineKeyboard();
         if ($isMovie) {

@@ -3,10 +3,10 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
+use TeleBot\System\Session;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
 use TeleBot\App\Services\Show365;
-use TeleBot\System\SessionManager;
 use TeleBot\System\Types\InlineKeyboard;
 use TeleBot\System\Events\CallbackQuery;
 use GuzzleHttp\Exception\GuzzleException;
@@ -27,7 +27,7 @@ class Seasons extends BaseEvent
     public function onSeason(IncomingCallbackQuery $query): void
     {
         $index = (int)$query('season');
-        $session = SessionManager::get();
+        $session = Session::get();
 
         $selected = $session['selected'];
         $uuid = $selected['seasons'][$index]['id'];
@@ -38,7 +38,7 @@ class Seasons extends BaseEvent
 
         $selected['seasons'][$index]['episodes'] = $result;
         $session['selected'] = $selected;
-        SessionManager::set($session);
+        Session::set('*', $session);
 
         $inlineKeyboard = new InlineKeyboard();
         foreach ($result as $i => $episode) {
@@ -49,7 +49,7 @@ class Seasons extends BaseEvent
             );
         }
 
-        $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
+        $media = array_filter(Session::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
         $navigation = (new InlineKeyboard(1))
             ->addButton('⬇  Get All Episodes (txt)  ⬇', ['season:all' => $index], InlineKeyboard::CALLBACK_DATA)
@@ -75,9 +75,9 @@ class Seasons extends BaseEvent
     public function onAllSeason(IncomingCallbackQuery $query): void
     {
         $index = (int)$query('season:all');
-        $session = SessionManager::get();
+        $session = Session::get();
 
-        $userId = $this->event['callback_query']['from']['id'];
+        $userId = $this->event->callbackQuery->from->id;
         $selected = $session['selected'];
         $uuid = $selected['seasons'][$index]['id'];
         $number = Utils::padLeft($selected['seasons'][$index]['number']);

@@ -3,12 +3,12 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
-use GuzzleHttp\Exception\GuzzleException;
+use TeleBot\System\Session;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
-use TeleBot\System\SessionManager;
 use TeleBot\System\Events\CallbackQuery;
 use TeleBot\System\Types\InlineKeyboard;
+use GuzzleHttp\Exception\GuzzleException;
 use TeleBot\System\Types\IncomingCallbackQuery;
 
 class Episodes extends BaseEvent
@@ -27,7 +27,7 @@ class Episodes extends BaseEvent
         $sIndex = (int)$query('s');
         $eIndex = (int)$query('episode');
 
-        $selected = SessionManager::get('selected');
+        $selected = Session::get('selected');
         $season = $selected['seasons'][$sIndex];
         $episode = $season['episodes'][$eIndex];
         usort(

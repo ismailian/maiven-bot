@@ -3,9 +3,9 @@
 namespace TeleBot\App\Handlers;
 
 use Exception;
+use TeleBot\System\Session;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
-use TeleBot\System\SessionManager;
 use TeleBot\System\Types\InlineKeyboard;
 use TeleBot\System\Events\CallbackQuery;
 use GuzzleHttp\Exception\GuzzleException;
@@ -25,15 +25,15 @@ class Formats extends BaseEvent
     public function onMovieFormat(IncomingCallbackQuery $query): void
     {
         $fIndex = (int)$query('movie:format');
-        $selected = SessionManager::get('selected');
+        $selected = Session::get('selected');
 
-	usort($selected['formats'], fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1));
+        usort($selected['formats'], fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1));
         $format = $selected['formats'][$fIndex];
 
         $caption = Utils::getCaption($selected);
         $coverPath = Utils::getCover($selected['id'], $selected['cover']);
 
-        $media = array_filter(SessionManager::get('search'), fn($m) => $m['id'] == $selected['id']);
+        $media = array_filter(Session::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
 
         $inlineKeyboard = (new InlineKeyboard(1))
@@ -60,7 +60,7 @@ class Formats extends BaseEvent
         $eIndex = (int)$query('e');
         $fIndex = (int)$query('series:format');
 
-        $selected = SessionManager::get('selected');
+        $selected = Session::get('selected');
         $season = $selected['seasons'][$sIndex];
         $episode = $season['episodes'][$eIndex];
 
