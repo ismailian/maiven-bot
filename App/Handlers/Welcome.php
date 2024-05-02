@@ -2,12 +2,9 @@
 
 namespace TeleBot\App\Handlers;
 
-use Exception;
 use TeleBot\System\BaseEvent;
 use TeleBot\System\Events\Command;
-use TeleBot\System\Events\Text;
-use TeleBot\System\Filters\Awaits;
-use TeleBot\System\SessionManager;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Welcome extends BaseEvent
 {
@@ -16,8 +13,14 @@ class Welcome extends BaseEvent
      * handle start command
      *
      * @return void
+     * @throws GuzzleException
      */
     #[Command('start')]
-    public function onStart(): void {}
+    public function onStart(): void
+    {
+        $this->telegram->sendMessage(
+            "Hello and welcome to MaivenBot!\nsearch and download your favourite movies and series."
+        );
+    }
 
 }
