@@ -64,7 +64,7 @@ class Formats extends BaseEvent
         $season = $selected['seasons'][$sIndex];
         $episode = $season['episodes'][$eIndex];
 
-	usort($episode['formats'], fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1));
+        usort($episode['formats'], fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1));
         $format = $episode['formats'][$fIndex];
 
         $sNumber = Utils::padLeft($season['number']);
