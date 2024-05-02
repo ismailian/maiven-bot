@@ -56,7 +56,7 @@ class Message
             $this->date = new DateTime(date('Y-m-d H:i:s T', $message['date']));
             $this->text = $message['text'] ?? null;
 
-            $this->caption = $message['caption'] || null;
+            $this->caption = $message['caption'] ?? null;
             $this->entities = array_map(
                 fn($e) => new Entity($e['text'] ?? '', $e),
                 ($message['entities'] ?? [])
