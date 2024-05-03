@@ -30,8 +30,9 @@ class Formats extends BaseEvent
         usort($selected['formats'], fn($a, $b) => ($a['format'] == $b['format']) ? 0 : ($a['format'] < $b['format'] ? 1 : -1));
         $format = $selected['formats'][$fIndex];
 
+        $userId = $this->event->callbackQuery->from->id;
         $caption = Utils::getCaption($selected);
-        $coverPath = Utils::getCover($selected['id'], $selected['cover']);
+        $coverPath = Utils::getCover($userId, $selected['id'], $selected['cover']);
 
         $media = array_filter(Session::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
@@ -70,9 +71,10 @@ class Formats extends BaseEvent
         $sNumber = Utils::padLeft($season['number']);
         $eNumber = Utils::padLeft($episode['number']);
 
+        $userId = $this->event->callbackQuery->from->id;
         $caption = Utils::getCaption($selected);
         $caption .= "\nS{$sNumber}E{$eNumber}";
-        $coverPath = Utils::getCover($selected['id'], $selected['cover']);
+        $coverPath = Utils::getCover($userId, $selected['id'], $selected['cover']);
 
         $inlineKeyboard = (new InlineKeyboard(1))
             ->addButton('Download', $format['url'])

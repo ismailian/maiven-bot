@@ -42,7 +42,8 @@ class Navigation extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $coverPath = Utils::getCover($results[$index]['id'], $results[$index]['cover']);
+        $userId = $this->event->callbackQuery->from->id;
+        $coverPath = Utils::getCover($userId, $results[$index]['id'], $results[$index]['cover']);
         $this->telegram
             ->withOptions(['reply_markup' => [
             'inline_keyboard' => [...$select, ...$navigation]
@@ -78,7 +79,8 @@ class Navigation extends BaseEvent
             ->addButton('➡', ['index' => $index, 'nav' => 'next'], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
-        $coverPath = Utils::getCover($results[$index]['id'], $results[$index]['cover']);
+        $userId = $this->event->callbackQuery->from->id;
+        $coverPath = Utils::getCover($userId, $results[$index]['id'], $results[$index]['cover']);
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => [...$select, ...$navigation]]])
             ->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));

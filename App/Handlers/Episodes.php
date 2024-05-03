@@ -44,8 +44,9 @@ class Episodes extends BaseEvent
             );
         }
 
+        $userId = $this->event->callbackQuery->from->id;
         $caption = Utils::getCaption($selected);
-        $coverPath = Utils::getCover($selected['id'], $selected['cover']);
+        $coverPath = Utils::getCover($userId, $selected['id'], $selected['cover']);
         $back = (new InlineKeyboard(1))->addButton(
             '⬅ Back', ['season' => $sIndex], InlineKeyboard::CALLBACK_DATA
         )->toArray();

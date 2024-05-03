@@ -56,8 +56,9 @@ class Seasons extends BaseEvent
             ->addButton('⬅ Back', ['index' => $mIndex, 'media' => $selected['id']], InlineKeyboard::CALLBACK_DATA)
             ->toArray();
 
+        $userId = $this->event->callbackQuery->from->id;
         $caption = Utils::getCaption($selected);
-        $coverPath = Utils::getCover($selected['id'], $selected['cover']);
+        $coverPath = Utils::getCover($userId, $selected['id'], $selected['cover']);
 
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$navigation]]])
