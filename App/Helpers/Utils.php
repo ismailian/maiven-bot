@@ -85,6 +85,27 @@ class Utils
     }
 
     /**
+     * download media cover
+     *
+     * @param string $userId
+     * @param string $mediaId
+     * @param string $coverUrl
+     * @return string
+     */
+    public static function _getCover(string $userId, string $mediaId, string $coverUrl): string
+    {
+        $coverPath = "tmp/cover_{$userId}_{$mediaId}.jpg";
+        if (!file_exists($coverPath) || filesize($coverPath) == 0) {
+            array_map('unlink', glob("tmp/cover_{$userId}_*"));
+            if (!file_put_contents($coverPath, file_get_contents($coverUrl))) {
+                $coverPath = 'tmp/default.png';
+            }
+        }
+
+        return $coverPath;
+    }
+
+    /**
      * get best format
      *
      * @param array $formats
