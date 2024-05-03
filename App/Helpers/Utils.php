@@ -2,6 +2,8 @@
 
 namespace TeleBot\App\Helpers;
 
+use TeleBot\System\Types\InlineKeyboard;
+
 class Utils
 {
 
@@ -137,6 +139,46 @@ class Utils
         }
 
         return $files;
+    }
+
+    /**
+     * get back navigation button
+     *
+     * @param array $data
+     * @return array
+     */
+    public static function getBackButton(array $data): array
+    {
+        return (new InlineKeyboard(1))
+            ->addButton('⬅ Back', $data, InlineKeyboard::CALLBACK_DATA)
+            ->toArray();
+    }
+
+    /**
+     * get episodes pager
+     *
+     * @param int $sIndex
+     * @param int $eIndex
+     * @param array $episodes
+     * @return array
+     */
+    public static function getEpisodePager(int $sIndex, int $eIndex, array $episodes): array
+    {
+        $pager = (new InlineKeyboard());
+        $hasPrev = ($eIndex - 1) >= 0;
+        $hasNext = (count($episodes) - 1) >= ($eIndex + 1);
+
+        $prevEp = 'E' . Utils::padLeft($eIndex);
+        $nextEp = 'E' . Utils::padLeft($eIndex + 2);
+
+        if ($hasPrev) $pager->addButton($prevEp, [
+            's' => $sIndex, 'episode' => $eIndex - 1
+        ], InlineKeyboard::CALLBACK_DATA);
+        if ($hasNext) $pager->addButton($nextEp, [
+            's' => $sIndex, 'episode' => $eIndex + 1
+        ], InlineKeyboard::CALLBACK_DATA);
+
+        return $pager->toArray();
     }
 
 }

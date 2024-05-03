@@ -45,14 +45,15 @@ class Episodes extends BaseEvent
         }
 
         $userId = $this->event->callbackQuery->from->id;
-        $caption = Utils::getCaption($selected);
         $coverPath = Utils::getCover($userId, $selected['id'], $selected['cover']);
-        $back = (new InlineKeyboard(1))->addButton(
-            '⬅ Back', ['season' => $sIndex], InlineKeyboard::CALLBACK_DATA
-        )->toArray();
+        $caption = Utils::getCaption($selected);
+        $caption .= PHP_EOL . 'S' . Utils::padLeft($sIndex + 1) . 'E' . Utils::padLeft($eIndex + 1);
+
+        $back = Utils::getBackButton(['season' => $sIndex]);
+        $pager = Utils::getEpisodePager($sIndex, $eIndex, $season['episodes']);
 
         $this->telegram
-            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$back]]])
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$pager, ...$back]]])
             ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 

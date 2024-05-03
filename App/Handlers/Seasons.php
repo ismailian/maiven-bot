@@ -51,10 +51,7 @@ class Seasons extends BaseEvent
 
         $media = array_filter(Session::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
-        $navigation = (new InlineKeyboard(1))
-            // ->addButton('⬇  Get All Episodes (txt)  ⬇', ['season:all' => $index], InlineKeyboard::CALLBACK_DATA)
-            ->addButton('⬅ Back', ['index' => $mIndex, 'media' => $selected['id']], InlineKeyboard::CALLBACK_DATA)
-            ->toArray();
+        $navigation = Utils::getBackButton(['index' => $mIndex, 'media' => $selected['id']]);
 
         $userId = $this->event->callbackQuery->from->id;
         $caption = Utils::getCaption($selected);
@@ -89,9 +86,7 @@ class Seasons extends BaseEvent
 
         $files = Utils::getFiles($userId, $selected['title'], $number, $episodes);
         $caption = Utils::getCaption($selected, $number);
-        $navigation = (new InlineKeyboard(1))
-            ->addButton('⬅ Back', ['season' => $index], InlineKeyboard::CALLBACK_DATA)
-            ->toArray();
+        $navigation = Utils::getBackButton(['season' => $index]);
 
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => $navigation]])

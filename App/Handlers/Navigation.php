@@ -44,10 +44,9 @@ class Navigation extends BaseEvent
 
         $userId = $this->event->callbackQuery->from->id;
         $coverPath = Utils::getCover($userId, $results[$index]['id'], $results[$index]['cover']);
+
         $this->telegram
-            ->withOptions(['reply_markup' => [
-            'inline_keyboard' => [...$select, ...$navigation]
-        ]])
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$select, ...$navigation]]])
             ->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
     }
 
@@ -81,6 +80,7 @@ class Navigation extends BaseEvent
 
         $userId = $this->event->callbackQuery->from->id;
         $coverPath = Utils::getCover($userId, $results[$index]['id'], $results[$index]['cover']);
+
         $this->telegram
             ->withOptions(['reply_markup' => ['inline_keyboard' => [...$select, ...$navigation]]])
             ->editMedia($query->messageId, 'photo', $coverPath, Utils::getCaption($results[$index]));
