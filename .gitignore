@@ -1,9 +1,8 @@
 .env
 .idea
 vendor
-node_modules
 tmp
 session
 logs
-todos.txt
+tests
 history.json
