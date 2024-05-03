@@ -25,7 +25,7 @@ class CallbackQuery
     public function __construct(protected array $callback)
     {
         $this->id = $this->callback['id'];
-        $this->messageId = $this->callback['inline_message_id'];
+        $this->messageId = $this->callback['message']['message_id'];
         $this->from = new From($this->callback['from']);
         $this->data = $this->callback['data'];
 

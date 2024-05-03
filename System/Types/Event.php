@@ -33,17 +33,17 @@ class Event
         }
 
         /** <CallbackQuery> */
-        if (in_array('callback_query', $this->event)) {
+        if (array_key_exists('callback_query', $this->event)) {
             $this->callbackQuery = new CallbackQuery($this->event['callback_query']);
         }
 
         /** <InlineQuery> */
-        if (in_array('inline_query', $this->event)) {
+        if (array_key_exists('inline_query', $this->event)) {
             $this->inlineQuery = null;
         }
 
         /** <ChosenInlineQuery> */
-        if (in_array('chosen_inline_query', $this->event)) {
+        if (array_key_exists('chosen_inline_query', $this->event)) {
             $this->chosenInlineQuery = null;
         }
     }
