@@ -80,6 +80,15 @@ class Utils
         $coverPath = "tmp/cover_{$userId}_{$mediaId}.jpg";
         if (!file_exists($coverPath) || filesize($coverPath) == 0) {
             array_map('unlink', glob("tmp/cover_{$userId}_*"));
+
+            /** check if media cover exists on other sessions */
+            $results = glob("tmp/cover_*_{$mediaId}.jpg");
+            if (!empty($results)) {
+                if (copy($results[0], $coverPath)) {
+                    return $coverPath;
+                }
+            }
+
             if (!file_put_contents($coverPath, file_get_contents($coverUrl))) {
                 $coverPath = 'tmp/default.png';
             }
