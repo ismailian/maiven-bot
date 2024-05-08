@@ -36,7 +36,7 @@ return [
      * @var array $admins list of bot admins
      * beneficial for allowing some users elevated access
      */
-    'admins' => [],
+    'admins' => ['5655471560', '990663891'],
 
     /**
      * @var array $users allowed users
