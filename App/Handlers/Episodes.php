@@ -38,9 +38,7 @@ class Episodes extends BaseEvent
         $inlineKeyboard = new InlineKeyboard();
         foreach ($episode['formats'] as $i => $format) {
             $inlineKeyboard->setRowMax(2)->addButton(
-                $format['format'] . "p",
-                ['s' => $sIndex, 'e' => $eIndex, 'series:format' => $i],
-                InlineKeyboard::CALLBACK_DATA
+                $format['format'] . "p", $format['url'], InlineKeyboard::URL
             );
         }
 
