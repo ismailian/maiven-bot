@@ -45,9 +45,9 @@ class BaseHandler
         foreach ($handlers as $handler) {
             $refClass = new ReflectionClass($handler);
             foreach ($refClass->getMethods() as $method) {
-                if ($this->runTriggers($method, $this->event)) {
+                if ($this->runFilters($method, $this->event)) {
                     foreach ($method->getAttributes() as $attr) {
-                        if (!str_ends_with($attr->getName(), 'Awaits')) {
+                        if (!str_contains($attr->getName(), 'Filters')) {
                             if (($result = $attr->newInstance()?->apply($this->event))) {
                                 $this->handler->setConfig($this->config)->assign(
                                     $refClass->newInstance($attr),
@@ -71,7 +71,7 @@ class BaseHandler
      * @param array $event
      * @return bool
      */
-    private function runTriggers(ReflectionMethod $method, array $event): bool
+    private function runFilters(ReflectionMethod $method, array $event): bool
     {
         $triggers = [
             ...$method->getAttributes(Only::class),
