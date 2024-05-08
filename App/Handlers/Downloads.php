@@ -6,6 +6,7 @@ use TeleBot\System\Process;
 use TeleBot\System\Session;
 use TeleBot\System\BaseEvent;
 use TeleBot\App\Helpers\Utils;
+use TeleBot\System\Filters\Only;
 use TeleBot\System\Events\CallbackQuery;
 use GuzzleHttp\Exception\GuzzleException;
 use TeleBot\System\Types\IncomingCallbackQuery;
@@ -21,15 +22,22 @@ class Downloads extends BaseEvent
      * @throws GuzzleException
      */
     #[CallbackQuery('season:prepare')]
+    #[Only(userIds: ['5655471560', '990663891'])]
     public function prepare(IncomingCallbackQuery $query): void
     {
         $sIndex = (int)$query('season:prepare');
         $this->telegram->sendMessage('preparing your download...');
         $feedbackId = $this->telegram->getLastMessageId();
-        $inputFile = 'tmp/' . md5(microtime(true)) . '.txt';
+        $outputFile = 'tmp/' . md5(microtime(true)) . '.txt';
+        $outputFile = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $outputFile;
+
+        $urls = [];
+        $userId = $this->event->callbackQuery->from->id;
+        $title = Session::get('selected.title');
+        $title = str_replace(' ', '.', strtolower($title));
 
         $season = Session::get('selected.seasons')[$sIndex];
-        $urls = [];
+        $sNumber = Utils::padLeft($season['number']);
 
         /** call the Aria2c api */
         foreach ($season['episodes'] as $episode) {
@@ -39,22 +47,21 @@ class Downloads extends BaseEvent
             $filename = "S{$sNumber}E{$eNumber}.mp4";
 
             $url = $format['url'] . PHP_EOL;
-            $url .= '   dir=/home/user/download/tmp' . PHP_EOL;
             $url .= '   out=' . $filename;
 
             $urls[] = $url;
         }
 
-        if (empty($url)) {
+        if (empty($urls)) {
             $this->telegram->editMessage($feedbackId, 'There are no episodes to download!!');
             return;
         }
 
         $this->telegram->editMessage($feedbackId, 'Writing urls to input file...');
-        file_put_contents($inputFile, join(PHP_EOL, $urls));
+        file_put_contents($outputFile, join(PHP_EOL, $urls));
 
         $this->telegram->editMessage($feedbackId, 'Starting download process..');
-        Process::runAsync('aria2c', '-s 10', '-x 10', '-i', $inputFile);
+        Process::runAsync('process', $outputFile, "{$userId}:{$feedbackId}:{$title}.{$sNumber}");
     }
 
 }

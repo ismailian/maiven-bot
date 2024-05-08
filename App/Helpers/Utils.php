@@ -190,4 +190,17 @@ class Utils
         return $pager->toArray();
     }
 
+    /**
+     * prepare compress button
+     *
+     * @param int $sIndex
+     * @return array
+     */
+    public static function getPrepareButton(int $sIndex): array
+    {
+        return (new InlineKeyboard())
+            ->addButton('Compress Season', ['season:prepare' => $sIndex], InlineKeyboard::CALLBACK_DATA)
+            ->toArray();
+    }
+
 }
