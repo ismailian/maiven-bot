@@ -52,17 +52,13 @@ class Seasons extends BaseEvent
         $media = array_filter(Session::get('search'), fn($m) => $m['id'] == $selected['id']);
         $mIndex = array_keys($media)[0];
         $navigation = Utils::getBackButton(['index' => $mIndex, 'media' => $selected['id']]);
-        $prepare = Utils::getPrepareButton($index);
-        if (!in_array($this->event->callbackQuery->from->id, ['5655471560', '990663891'])) {
-            $prepare = [];
-        }
 
         $userId = $this->event->callbackQuery->from->id;
         $caption = Utils::getCaption($selected);
         $coverPath = Utils::getCover($userId, $selected['id'], $selected['cover']);
 
         $this->telegram
-            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$prepare, ...$navigation]]])
+            ->withOptions(['reply_markup' => ['inline_keyboard' => [...$inlineKeyboard->toArray(), ...$navigation]]])
             ->editMedia($query->messageId, 'photo', $coverPath, $caption);
     }
 
