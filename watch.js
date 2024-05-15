@@ -15,9 +15,9 @@ const updateStatus = async (isUp = true) => {
             message_id: process.env.STATUS_MSG_ID,
             text: (isUp ? '🟢' : '🔴') + ' server is ' + (isUp ? 'up' : 'down')
         });
-    } catch ({response: {data}}) {
-        if (!data?.description.match(/(message is not modified)/)) {
-            console.log('[-]', 'error:', (data || 'Something went wrong!'));
+    } catch (err) {
+        if (!err?.response?.data?.description.match(/(message is not modified)/)) {
+            console.log('[-]', 'error:', (err?.response?.data || 'Something went wrong!'));
         }
     }
 };
