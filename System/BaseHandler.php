@@ -5,6 +5,7 @@ namespace TeleBot\System;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionException;
+use TeleBot\System\Filters\Only;
 use TeleBot\System\Filters\Awaits;
 use TeleBot\System\Messages\Inbound;
 use TeleBot\System\Filesystem\Handler;
@@ -12,7 +13,6 @@ use TeleBot\System\Filesystem\Collector;
 use TeleBot\System\Filesystem\Bootstrap;
 use TeleBot\System\Exceptions\InvalidUpdate;
 use TeleBot\System\Exceptions\InvalidMessage;
-use TeleBot\System\Filters\Only;
 
 class BaseHandler
 {
@@ -73,13 +73,13 @@ class BaseHandler
      */
     private function runFilters(ReflectionMethod $method, array $event): bool
     {
-        $triggers = [
+        $filters = [
             ...$method->getAttributes(Only::class),
             ...$method->getAttributes(Awaits::class),
         ];
 
-        foreach ($triggers as $trigger) {
-            if (!($trigger->newInstance()->apply($event))) {
+        foreach ($filters as $filter) {
+            if (!($filter->newInstance()->apply($event))) {
                 return false;
             }
         }
