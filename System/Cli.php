@@ -99,10 +99,16 @@ class Cli
      */
     public static function init(): void
     {
-        file_put_contents(self::$history, json_encode([
-            'date' => (new \DateTime())->format('Y-m-d\TH:i:s\Z'),
-            'changes' => [],
-        ], JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+        if (!file_exists(self::$history)) {
+            file_put_contents(self::$history, json_encode([
+                'date' => (new \DateTime())->format('Y-m-d\TH:i:s\Z'),
+                'changes' => [],
+            ], JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+
+            die('[+] History file has been created!');
+        }
+
+        die('[!] History file already exists!');
     }
 
     /**
@@ -151,7 +157,7 @@ class Cli
             'changes' => $updates,
         ], JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
 
-        die(PHP_EOL . '[+] all changes have been applied!' . PHP_EOL);
+        die('[+] all changes have been applied!' . PHP_EOL . PHP_EOL);
     }
 
     /**
@@ -178,6 +184,8 @@ class Cli
                 echo "\t* {$file['filename']} [{$file['status']}]" . PHP_EOL;
             }
         }
+
+        echo PHP_EOL;
     }
 
     /**
