@@ -2,6 +2,8 @@
 
 namespace TeleBot\System\Filesystem;
 
+use TeleBot\System\BaseEvent;
+
 class Handler
 {
 
@@ -42,7 +44,9 @@ class Handler
         $this->method = $method;
         $this->args = $args;
 
-        $this->instance->config = $this->config;
+        if (is_subclass_of($instance::class, BaseEvent::class)) {
+            $this->instance->config = $this->config;
+        }
 
         return $this;
     }
@@ -55,8 +59,7 @@ class Handler
     public function run(): void
     {
         call_user_func_array(
-            [$this->instance, $this->method],
-            (!is_array($this->args) ? [$this->args] : $this->args)
+            [$this->instance, $this->method], [$this->args]
         );
     }
 

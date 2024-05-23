@@ -2,15 +2,10 @@
 
 namespace TeleBot\System;
 
-use TeleBot\System\Messages\Inbound;
+use TeleBot\System\Messages\HttpRequest;
 
 class Router
 {
-
-    /**
-     * default constructor
-     */
-    public function __construct() {}
 
     /**
      * checks if incoming request matches a defined route
@@ -20,12 +15,16 @@ class Router
      */
     public function matches(array $routes): array|bool
     {
-        if (empty($routes) || empty($routes[Inbound::method()])) {
+        if (
+            empty($routes)
+            || empty($routes[HttpRequest::method()])
+            || empty($routes[strtoupper(HttpRequest::method())])) {
             return false;
         }
 
-        $uri = Inbound::uri();
-        foreach ($routes[Inbound::method()] as $route => $handler) {
+        $uri = HttpRequest::uri();
+        $routes = $routes[HttpRequest::method()] ?? $routes[strtoupper(HttpRequest::method())];
+        foreach ($routes as $route => $handler) {
             if ($this->isDynamic($route)) {
                 $routeMeta = $this->getUrlInfo($uri, $route);
                 if ($routeMeta['valid']) {

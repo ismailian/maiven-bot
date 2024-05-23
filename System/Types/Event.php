@@ -27,6 +27,8 @@ class Event
      */
     public function __construct(protected array $event)
     {
+        $this->id = $this->event['update_id'];
+
         /** <Message | EditedMessage> */
         if (array_intersect(['message', 'edited_message'], array_keys($this->event))) {
             $this->message = new Message($this->event['message']);
